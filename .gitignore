@@ -15,10 +15,11 @@ build/
 .ipynb_checkpoints/
 *.ipynb_checkpoints
 
-# Data & secrets
-data/raw/
+# Data & secrets (CSV generated locally; keep structure via .gitkeep)
+data/raw/*.csv
 data/private/
 *.csv
+!data/**/.gitkeep
 *.xlsx
 *.parquet
 .env
