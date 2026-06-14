@@ -151,7 +151,17 @@ pytest tests/
 
 详细输出可加 `-v`：`pytest tests/ -v`
 
-推送至 GitHub 后，[CI 工作流](.github/workflows/ci.yml) 会在每次 push/PR 时自动运行 `pytest` 与 `python main.py --demo`（无需联网）。
+## GitHub Actions 自动检查
+
+[`.github/workflows/ci.yml`](.github/workflows/ci.yml) 在每次 **push / PR** 到 `master` 或 `main` 时自动运行，无需联网：
+
+1. 安装依赖（`pip install -r requirements.txt`）
+2. 运行 `python main.py --demo`（内置演示数据 + 出图）
+3. 运行 `pytest tests/`
+
+[![CI](https://github.com/bobooooo6868/financial-analysis-demo/actions/workflows/ci.yml/badge.svg)](https://github.com/bobooooo6868/financial-analysis-demo/actions/workflows/ci.yml)
+
+即使作为课程作业项目，也能体现代码可自动验证、可复现。
 
 ## 作业对应关系
 
