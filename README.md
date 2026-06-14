@@ -1,6 +1,7 @@
 # Financial Analysis Demo
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![CI](https://github.com/bobooooo6868/financial-analysis-demo/actions/workflows/ci.yml/badge.svg)](https://github.com/bobooooo6868/financial-analysis-demo/actions/workflows/ci.yml)
 
 基于 **Python / Pandas / NumPy** 对四只标的近两年日线收盘价进行采集、清洗与量化分析。
 
@@ -148,6 +149,8 @@ python -m src.data_fetch
 pip install pytest
 pytest tests/ -v
 ```
+
+推送至 GitHub 后，[CI 工作流](.github/workflows/ci.yml) 会在每次 push/PR 时自动运行 `pytest` 与 `python main.py --demo`（无需联网）。
 
 ## 作业对应关系
 
