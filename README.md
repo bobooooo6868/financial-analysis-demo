@@ -94,7 +94,7 @@ pip install -r requirements.txt
 python main.py --demo
 ```
 
-**Dependencies:** `requirements.txt` pins core runtime (Streamlit Cloud–friendly). For notebooks/tests/plotly export, also install `requirements-dev.txt`. Python **3.13** (`.python-version`).
+**Dependencies:** `requirements.txt` pins core runtime (Python **3.12**, Streamlit Cloud–compatible). For notebooks/tests/plotly export, install `requirements-dev.txt`. See `.python-version`.
 
 | Command | Purpose |
 |---------|---------|
