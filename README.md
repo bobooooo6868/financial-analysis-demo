@@ -1,5 +1,7 @@
 # Financial Analysis Demo
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 基于 **Python / Pandas / NumPy** 对四只标的近两年日线收盘价进行采集、清洗与量化分析。
 
 **仓库地址：** [github.com/bobooooo6868/financial-analysis-demo](https://github.com/bobooooo6868/financial-analysis-demo)
@@ -55,7 +57,9 @@
 financial-analysis-demo/
 ├── data/
 │   ├── raw/              # 各标的原始 CSV（运行后生成）
-│   └── processed/        # 清洗后的收盘价宽表 prices_wide.csv
+│   └── processed/        # 清洗后的宽表；含 prices_wide_demo.csv（离线演示）
+├── tests/                # pytest 单元测试
+├── LICENSE
 ├── notebooks/
 │   ├── main.ipynb        # 主分析报告（作业提交用）
 │   └── 01_stock_overview.ipynb
@@ -121,7 +125,7 @@ python main.py
 python main.py --demo
 ```
 
-稍后再去掉 `--demo` 重新下载真实行情。
+`--demo` 会加载仓库内置的 [`data/processed/prices_wide_demo.csv`](data/processed/prices_wide_demo.csv)（固定种子合成数据），无需联网即可复现分析流程。稍后再去掉 `--demo` 重新下载真实行情。
 
 **Jupyter Notebook（含 Markdown 结论）**
 
@@ -136,6 +140,13 @@ jupyter lab notebooks/main.ipynb
 
 ```bash
 python -m src.data_fetch
+```
+
+### 4. 运行测试
+
+```bash
+pip install pytest
+pytest tests/ -v
 ```
 
 ## 作业对应关系
@@ -157,7 +168,11 @@ python -m src.data_fetch
 
 - 行情数据通过 [yfinance](https://github.com/ranaroussi/yfinance) 获取，存在延迟，仅供学习与研究使用。
 - 原始 CSV 默认不纳入版本控制，运行后本地生成；图表 PNG 提交至仓库便于 GitHub 展示。
-- 使用 `--demo` 时生成合成数据，统计结果与真实市场不同，仅用于验证流程。
+- 使用 `--demo` 时加载内置演示宽表，统计结果与真实市场不同，仅用于验证流程。
+
+## 许可证
+
+本项目采用 [MIT License](LICENSE)。
 
 ## 更新仓库
 

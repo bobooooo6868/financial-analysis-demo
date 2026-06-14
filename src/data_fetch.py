@@ -8,8 +8,20 @@ from pathlib import Path
 import pandas as pd
 import yfinance as yf
 
-from src.config import PERIOD, PROCESSED_DIR, RAW_DIR, TICKERS
+from src.config import DEMO_PRICES_PATH, PERIOD, PROCESSED_DIR, RAW_DIR, TICKERS
 from src.demo_data import generate_synthetic_ohlcv
+
+
+def load_demo_prices() -> pd.DataFrame:
+    """Load bundled demo wide price table (reproducible offline runs)."""
+    if DEMO_PRICES_PATH.exists():
+        df = pd.read_csv(DEMO_PRICES_PATH, index_col=0, parse_dates=True)
+        df.index = pd.to_datetime(df.index)
+        return df.sort_index()
+    wide = build_close_wide(generate_synthetic_ohlcv(seed=42))
+    PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
+    wide.to_csv(DEMO_PRICES_PATH)
+    return wide
 
 
 def download_all(
@@ -121,7 +133,7 @@ def build_close_wide(frames: dict[str, pd.DataFrame] | None = None) -> pd.DataFr
 def run_pipeline(save: bool = True, use_cache: bool = True, demo: bool = False) -> pd.DataFrame:
     """Download, save raw CSVs, build wide close table, save processed CSV."""
     if demo:
-        frames = generate_synthetic_ohlcv()
+        return load_demo_prices()
     elif use_cache and all((RAW_DIR / f"{t}.csv").exists() for t in TICKERS):
         frames = {t: load_raw(t) for t in TICKERS}
     else:
