@@ -33,6 +33,15 @@ def main() -> None:
     print("\n--- Correlation matrix ---")
     print(results["correlation"].round(3))
 
+    print("\n--- Normality tests (Jarque-Bera) ---")
+    print(results["normality_tests"].round(4))
+
+    print("\n--- ADF stationarity (prices) ---")
+    print(results["adf_price_tests"].round(4))
+
+    print("\n--- ADF stationarity (returns) ---")
+    print(results["adf_return_tests"].round(4))
+
 
 if __name__ == "__main__":
     main()

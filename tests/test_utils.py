@@ -12,6 +12,19 @@ from src.utils import (
 )
 
 
+def test_log_returns_from_prices_calculation():
+    """log(P_t / P_{t-1}); first row NaN, subsequent rows match formula."""
+    prices = pd.DataFrame({"A": [100.0, 110.0, 121.0], "B": [50.0, 55.0, 52.5]})
+    log_ret = log_returns_from_prices(prices)
+
+    assert np.isnan(log_ret.iloc[0, 0])
+    assert np.isnan(log_ret.iloc[0, 1])
+    assert log_ret.iloc[1, 0] == pytest.approx(np.log(110.0 / 100.0))
+    assert log_ret.iloc[2, 0] == pytest.approx(np.log(121.0 / 110.0))
+    assert log_ret.iloc[1, 1] == pytest.approx(np.log(55.0 / 50.0))
+    assert log_ret.iloc[2, 1] == pytest.approx(np.log(52.5 / 55.0))
+
+
 def test_log_returns_first_row_is_nan():
     prices = pd.DataFrame({"A": [100.0, 110.0, 105.0]})
     log_ret = log_returns_from_prices(prices)

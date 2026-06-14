@@ -4,6 +4,12 @@ from src.config import DEMO_PRICES_PATH, TICKERS
 from src.data_fetch import load_demo_prices, run_pipeline
 
 
+def test_run_pipeline_demo_column_names():
+    """run_pipeline(demo=True) returns wide table with expected ticker columns."""
+    prices = run_pipeline(demo=True, save=False)
+    assert list(prices.columns) == TICKERS
+
+
 def test_demo_prices_file_exists():
     assert DEMO_PRICES_PATH.exists()
 

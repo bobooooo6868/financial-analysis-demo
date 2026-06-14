@@ -146,9 +146,10 @@ python -m src.data_fetch
 ### 4. 运行测试
 
 ```bash
-pip install pytest
-pytest tests/ -v
+pytest tests/
 ```
+
+详细输出可加 `-v`：`pytest tests/ -v`
 
 推送至 GitHub 后，[CI 工作流](.github/workflows/ci.yml) 会在每次 push/PR 时自动运行 `pytest` 与 `python main.py --demo`（无需联网）。
 
@@ -157,13 +158,13 @@ pytest tests/ -v
 | 步骤 | 内容 | 主要代码 |
 |------|------|----------|
 | 1 | 采集、清洗、`merge` 宽表 | `src/data_fetch.py` |
-| 2 | 收益率、NumPy 向量化统计 | `src/analysis.py`, `src/utils.py` |
+| 2 | 收益率、NumPy 向量化统计、正态性/平稳性检验 | `src/analysis.py`, `src/utils.py` |
 | 3 | 滚动均线/波动率、`corr`、`groupby`、`resample` | `src/analysis.py` |
 | 4 | Notebook 报告 + 图表 + GitHub | `notebooks/main.ipynb`, `images/` |
 
 ## 技术栈
 
-`yfinance` · `pandas` · `numpy` · `matplotlib` · `seaborn` · `jupyter`
+`yfinance` · `pandas` · `numpy` · `matplotlib` · `seaborn` · `scipy` · `statsmodels` · `jupyter`
 
 完整依赖见 [`requirements.txt`](requirements.txt)。
 

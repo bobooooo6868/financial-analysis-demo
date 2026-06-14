@@ -3,7 +3,13 @@
 import numpy as np
 import pandas as pd
 
-from src.analysis import correlation_matrix, daily_returns, run_full_analysis
+from src.analysis import (
+    adf_stationarity_tests,
+    correlation_matrix,
+    daily_returns,
+    normality_tests,
+    run_full_analysis,
+)
 from src.config import TICKERS
 from src.data_fetch import load_demo_prices
 
@@ -15,9 +21,11 @@ def test_daily_returns_shape():
     assert len(rets) == len(prices) - 1
 
 
-def test_correlation_matrix_properties():
+def test_correlation_matrix_symmetric_and_unit_diagonal():
+    """Correlation matrix is symmetric with ones on the diagonal."""
     prices = load_demo_prices()
     corr = correlation_matrix(daily_returns(prices))
+
     assert list(corr.columns) == TICKERS
     assert np.allclose(np.diag(corr), 1.0)
     assert np.allclose(corr, corr.T)
@@ -37,6 +45,9 @@ def test_run_full_analysis_keys():
         "correlation",
         "monthly_groupby",
         "monthly_resample",
+        "normality_tests",
+        "adf_price_tests",
+        "adf_return_tests",
         "volatility_spikes",
     }
     assert expected <= set(results.keys())
@@ -45,3 +56,25 @@ def test_run_full_analysis_keys():
         results["stats_broadcast"],
         check_names=True,
     )
+
+
+def test_normality_tests_columns():
+    prices = load_demo_prices()
+    rets = daily_returns(prices)
+    jb = normality_tests(rets)
+    assert list(jb.columns) == ["jb_stat", "p_value", "reject_normal_5pct"]
+    assert len(jb) == len(TICKERS)
+    assert jb["p_value"].between(0, 1).all()
+
+
+def test_adf_stationarity_tests_columns():
+    prices = load_demo_prices()
+    rets = daily_returns(prices)
+    adf_price = adf_stationarity_tests(prices, kind="price")
+    adf_return = adf_stationarity_tests(rets, kind="return")
+    for frame in (adf_price, adf_return):
+        assert list(frame.columns) == ["kind", "adf_stat", "p_value", "stationary_5pct"]
+        assert (frame["kind"] == frame["kind"].iloc[0]).all()
+    assert adf_price["kind"].iloc[0] == "price"
+    assert adf_return["kind"].iloc[0] == "return"
+

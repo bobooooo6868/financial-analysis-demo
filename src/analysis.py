@@ -6,6 +6,8 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+from scipy.stats import jarque_bera
+from statsmodels.tsa.stattools import adfuller
 
 from src.config import PROCESSED_DIR, ROLLING_LONG, ROLLING_SHORT, TICKERS
 from src.utils import cumulative_log_return, log_returns_from_prices, summary_stats, vectorized_summary
@@ -55,6 +57,45 @@ def resample_monthly_returns(returns: pd.DataFrame) -> pd.DataFrame:
     return compounded
 
 
+def normality_tests(returns: pd.DataFrame) -> pd.DataFrame:
+    """
+    Jarque-Bera test on daily simple returns per ticker.
+    H0: returns are normally distributed (reject if p < 0.05).
+    """
+    rows = []
+    for col in returns.columns:
+        series = returns[col].dropna()
+        stat, p_value = jarque_bera(series)
+        rows.append(
+            {
+                "jb_stat": stat,
+                "p_value": p_value,
+                "reject_normal_5pct": p_value < 0.05,
+            }
+        )
+    return pd.DataFrame(rows, index=returns.columns)
+
+
+def adf_stationarity_tests(series: pd.DataFrame, kind: str) -> pd.DataFrame:
+    """
+    Augmented Dickey-Fuller test per column.
+    H0: unit root present (non-stationary); reject if p < 0.05.
+    """
+    rows = []
+    for col in series.columns:
+        values = series[col].dropna()
+        adf_stat, p_value, *_ = adfuller(values, autolag="AIC")
+        rows.append(
+            {
+                "kind": kind,
+                "adf_stat": adf_stat,
+                "p_value": p_value,
+                "stationary_5pct": p_value < 0.05,
+            }
+        )
+    return pd.DataFrame(rows, index=series.columns)
+
+
 def run_full_analysis(prices: pd.DataFrame | None = None) -> dict:
     """Run all analysis steps and return a dict of results for notebooks/plots."""
     prices = prices if prices is not None else load_prices_wide()
@@ -70,6 +111,9 @@ def run_full_analysis(prices: pd.DataFrame | None = None) -> dict:
     corr = correlation_matrix(simple_ret)
     monthly_gb = monthly_mean_returns(simple_ret)
     monthly_rs = resample_monthly_returns(simple_ret)
+    normality = normality_tests(simple_ret)
+    adf_prices = adf_stationarity_tests(prices, kind="price")
+    adf_returns = adf_stationarity_tests(simple_ret, kind="return")
 
     # Volatility spike dates (top 1% rolling vol per ticker)
     vol_spikes = {}
@@ -90,6 +134,9 @@ def run_full_analysis(prices: pd.DataFrame | None = None) -> dict:
         "correlation": corr,
         "monthly_groupby": monthly_gb,
         "monthly_resample": monthly_rs,
+        "normality_tests": normality,
+        "adf_price_tests": adf_prices,
+        "adf_return_tests": adf_returns,
         "volatility_spikes": vol_spikes,
     }
 
