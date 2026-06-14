@@ -83,6 +83,7 @@ financial-analysis-demo/
 │   ├── demo_data.py      # 合成演示数据（限流备用）
 │   └── config.py         # 常量配置
 ├── images/               # 导出的图表 PNG
+├── fetch_data.py         # 单只股票 yfinance 实时拉取 + 涨跌幅
 ├── main.py               # 一键运行全流程
 ├── requirements.txt
 └── README.md
@@ -158,6 +159,15 @@ jupyter lab notebooks/main.ipynb
 python -m src.data_fetch
 ```
 
+**单只股票实时拉取 + 涨跌幅（t3 / live 数据）**
+
+```bash
+python fetch_data.py GOOGL
+python fetch_data.py NVDA --period 1y
+```
+
+默认使用 yfinance 实时行情，打印最新收盘价、日涨跌幅与区间涨跌幅（无 demo 回退）。
+
 ### 4. 运行测试
 
 ```bash
@@ -182,7 +192,8 @@ pytest tests/
 
 | 步骤 | 内容 | 主要代码 |
 |------|------|----------|
-| 1 | 采集、清洗、`merge` 宽表 | `src/data_fetch.py` |
+| 1 | 单股 live 采集、涨跌幅 | `fetch_data.py` |
+| 1b | 四标的采集、清洗、`merge` 宽表 | `src/data_fetch.py` |
 | 2 | 收益率、NumPy 向量化统计、正态性/平稳性检验 | `src/analysis.py`, `src/utils.py` |
 | 3 | 滚动均线/波动率、`corr`、`groupby`、`resample` | `src/analysis.py` |
 | 4 | Notebook 报告 + 图表 + GitHub | `notebooks/main.ipynb`, `images/` |
@@ -197,7 +208,7 @@ pytest tests/
 
 - 行情数据通过 [yfinance](https://github.com/ranaroussi/yfinance) 获取，存在延迟，仅供学习与研究使用。
 - 原始 CSV 默认不纳入版本控制，运行后本地生成；图表 PNG 提交至仓库便于 GitHub 展示。
-- 使用 `--demo` 时加载内置演示宽表，统计结果与真实市场不同，仅用于验证流程。
+- 正式分析默认使用 **yfinance 实时数据**（`main.ipynb`、`app.py`）；限流或离线时用 `--demo` / 演示开关。
 
 ## 许可证
 

@@ -64,9 +64,9 @@ def main() -> None:
     with st.sidebar:
         st.header("设置")
         use_demo = st.toggle(
-            "使用演示数据（推荐）",
-            value=True,
-            help="云端部署建议开启，避免 yfinance 限流。",
+            "使用演示数据",
+            value=False,
+            help="关闭后通过 yfinance 拉取实时行情；云端若失败可再开启。",
         )
         if not use_demo:
             st.warning("实时下载依赖 yfinance，可能较慢或失败。")
