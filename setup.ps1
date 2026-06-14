@@ -16,6 +16,9 @@ if (-not (Test-Path .venv)) {
 Write-Host "==> Installing dependencies ..."
 .\.venv\Scripts\python.exe -m pip install -U pip
 .\.venv\Scripts\pip.exe install -r requirements.txt
+if (Test-Path requirements-dev.txt) {
+    .\.venv\Scripts\pip.exe install -r requirements-dev.txt
+}
 
 Write-Host ""
 Write-Host "Setup complete."

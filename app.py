@@ -3,10 +3,14 @@
 from __future__ import annotations
 
 import io
+import os
 from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
+import matplotlib
+
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 import streamlit as st
@@ -29,16 +33,34 @@ st.set_page_config(
 )
 
 TICKER_LABELS = {
-    "GOOGL": "谷歌",
-    "AVGO": "博通",
-    "SLV": "白银 ETF",
-    "NVDA": "英伟达",
+    "GOOGL": "Google",
+    "AVGO": "Broadcom",
+    "SLV": "Silver ETF",
+    "NVDA": "NVIDIA",
 }
 
 
-@st.cache_data(show_spinner="正在加载数据并分析…")
+def _on_streamlit_cloud() -> bool:
+    """Detect Streamlit Community Cloud (prefer bundled demo data)."""
+    env = os.environ.get("STREAMLIT_RUNTIME_ENVIRONMENT", "").lower()
+    return env in {"cloud", "streamlit-cloud", "community-cloud"} or bool(
+        os.environ.get("STREAMLIT_SHARING")
+    )
+
+
+@st.cache_data(show_spinner="Loading prices…", ttl=3600)
+def load_prices(use_demo: bool):
+    return run_pipeline(demo=use_demo, save=False)
+
+
 def load_analysis(use_demo: bool) -> dict:
-    prices = run_pipeline(demo=use_demo, save=False)
+    try:
+        prices = load_prices(use_demo)
+    except Exception as exc:
+        if use_demo:
+            raise
+        st.warning(f"Live yfinance fetch failed: {exc}. Using demo data.")
+        prices = load_prices(True)
     return run_full_analysis(prices)
 
 
@@ -46,6 +68,7 @@ def render_figure(plot_fn: Callable[..., Path | Figure], data: Any) -> None:
     """Render matplotlib output via PNG bytes (reliable on Streamlit Cloud)."""
     fig = plot_fn(data, save=False)
     if not isinstance(fig, Figure):
+        st.warning("Chart could not be rendered.")
         return
     buf = io.BytesIO()
     fig.savefig(buf, format="png", dpi=120, bbox_inches="tight")
@@ -55,44 +78,52 @@ def render_figure(plot_fn: Callable[..., Path | Figure], data: Any) -> None:
 
 
 def main() -> None:
-    st.title("四只股票金融数据分析")
+    st.title("Stock Financial Analysis Dashboard")
     st.caption(
-        "标的：GOOGL · AVGO · SLV · NVDA ｜ "
+        "GOOGL · AVGO · SLV · NVDA ｜ "
         "[GitHub](https://github.com/bobooooo6868/financial-analysis-demo)"
     )
 
+    default_demo = _on_streamlit_cloud()
+
     with st.sidebar:
-        st.header("设置")
+        st.header("Settings")
         use_demo = st.toggle(
-            "使用演示数据",
-            value=False,
-            help="关闭后通过 yfinance 拉取实时行情；云端若失败可再开启。",
+            "Use demo data",
+            value=default_demo,
+            help="Recommended on Streamlit Cloud. Turn off for live yfinance quotes.",
         )
         if not use_demo:
-            st.warning("实时下载依赖 yfinance，可能较慢或失败。")
-        if st.button("清除缓存并刷新"):
+            st.warning("Live mode needs yfinance and may be slow or rate-limited.")
+        if st.button("Clear cache & refresh"):
             st.cache_data.clear()
             st.rerun()
 
-    results = load_analysis(use_demo)
+    try:
+        results = load_analysis(use_demo)
+    except Exception as exc:
+        st.error(f"Failed to load analysis: {exc}")
+        st.info("Try enabling **Use demo data** in the sidebar, then refresh.")
+        st.stop()
+
     prices = results["prices"]
     stats = results["stats_loop"]
 
     col1, col2, col3, col4 = st.columns(4)
-    col1.metric("交易日数", f"{len(prices)}")
-    col2.metric("标的数量", len(TICKERS))
-    col3.metric("波动最大", stats["std"].idxmax())
-    col4.metric("数据来源", "演示数据" if use_demo else "yfinance")
+    col1.metric("Trading days", f"{len(prices)}")
+    col2.metric("Tickers", len(TICKERS))
+    col3.metric("Highest volatility", stats["std"].idxmax())
+    col4.metric("Data source", "Demo" if use_demo else "yfinance")
 
     tab_overview, tab_stats, tab_tests, tab_charts = st.tabs(
-        ["概览", "收益统计", "统计检验", "图表"]
+        ["Overview", "Returns", "Tests", "Charts"]
     )
 
     with tab_overview:
-        st.subheader("收盘价宽表（最近 10 行）")
+        st.subheader("Close prices (last 10 rows)")
         st.dataframe(prices.tail(10).round(2), use_container_width=True)
 
-        st.subheader("日收益相关矩阵")
+        st.subheader("Daily return correlation")
         st.dataframe(results["correlation"].round(3), use_container_width=True)
 
         tech = ["GOOGL", "AVGO", "NVDA"]
@@ -100,62 +131,61 @@ def main() -> None:
         upper = tech_corr[np.triu_indices(len(tech), k=1)]
         slv_mean = results["correlation"].loc["SLV", tech].mean()
         st.write(
-            f"科技股平均相关系数：**{upper.mean():.3f}** ｜ "
-            f"SLV 与科技股平均相关系数：**{slv_mean:.3f}**"
+            f"Tech avg correlation: **{upper.mean():.3f}** ｜ "
+            f"SLV vs tech avg: **{slv_mean:.3f}**"
         )
 
     with tab_stats:
-        st.subheader("日收益描述统计")
+        st.subheader("Daily return statistics")
         st.dataframe(stats.round(6), use_container_width=True)
 
         c1, c2 = st.columns(2)
         with c1:
-            st.markdown("**月均日收益（最近 6 个月）**")
+            st.markdown("**Monthly mean daily returns (last 6)**")
             st.dataframe(results["monthly_groupby"].tail(6).round(6), use_container_width=True)
         with c2:
-            st.markdown("**月末复合月收益（最近 6 个月）**")
+            st.markdown("**Month-end compounded returns (last 6)**")
             st.dataframe(results["monthly_resample"].tail(6).round(6), use_container_width=True)
 
     with tab_tests:
         c1, c2, c3 = st.columns(3)
         with c1:
-            st.markdown("**Jarque-Bera 正态性检验**")
+            st.markdown("**Jarque–Bera normality**")
             st.dataframe(results["normality_tests"].round(4), use_container_width=True)
         with c2:
-            st.markdown("**ADF — 价格水平**")
+            st.markdown("**ADF — price level**")
             st.dataframe(results["adf_price_tests"].round(4), use_container_width=True)
         with c3:
-            st.markdown("**ADF — 日收益**")
+            st.markdown("**ADF — daily returns**")
             st.dataframe(results["adf_return_tests"].round(4), use_container_width=True)
 
         reject = int(results["normality_tests"]["reject_normal_5pct"].sum())
         nonstat = int((~results["adf_price_tests"]["stationary_5pct"]).sum())
         stat = int(results["adf_return_tests"]["stationary_5pct"].sum())
         st.info(
-            f"正态性拒绝 {reject}/{len(TICKERS)} ｜ "
-            f"价格非平稳 {nonstat}/{len(TICKERS)} ｜ "
-            f"收益平稳 {stat}/{len(TICKERS)}"
+            f"Reject normality {reject}/{len(TICKERS)} ｜ "
+            f"Non-stationary prices {nonstat}/{len(TICKERS)} ｜ "
+            f"Stationary returns {stat}/{len(TICKERS)}"
         )
 
     with tab_charts:
-        st.subheader("累计对数收益")
+        st.subheader("Cumulative log returns")
         render_figure(plot_cumulative_returns, results["cumulative_log_return"])
 
         left, right = st.columns(2)
         with left:
-            st.subheader("相关矩阵热图")
+            st.subheader("Correlation heatmap")
             render_figure(plot_correlation_heatmap, results["correlation"])
         with right:
-            st.subheader("20 日滚动波动率")
+            st.subheader("20-day rolling volatility")
             render_figure(plot_rolling_volatility, results["rolling_volatility"])
 
-        st.subheader("最近 12 个月月均日收益")
+        st.subheader("Monthly mean daily returns (last 12 months)")
         render_figure(plot_monthly_returns_bar, results["monthly_groupby"])
 
-    with st.expander("标的说明"):
+    with st.expander("Ticker glossary"):
         for symbol in TICKERS:
-            st.write(f"- **{symbol}**：{TICKER_LABELS[symbol]}")
+            st.write(f"- **{symbol}**: {TICKER_LABELS[symbol]}")
 
 
-if __name__ == "__main__":
-    main()
+main()

@@ -16,6 +16,9 @@ python3 -m venv .venv
 echo "==> Installing dependencies ..."
 .venv/bin/python -m pip install -U pip
 .venv/bin/pip install -r requirements.txt
+if [[ -f requirements-dev.txt ]]; then
+  .venv/bin/pip install -r requirements-dev.txt
+fi
 
 echo ""
 echo "Setup complete."

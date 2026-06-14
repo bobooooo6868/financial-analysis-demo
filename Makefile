@@ -10,6 +10,7 @@ setup:
 	$(PYTHON) -m venv $(VENV)
 	$(PY) -m pip install -U pip
 	$(PIP) install -r requirements.txt
+	$(PIP) install -r requirements-dev.txt
 	@echo "Run: make demo"
 
 demo: setup

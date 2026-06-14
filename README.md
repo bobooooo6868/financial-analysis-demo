@@ -94,7 +94,7 @@ pip install -r requirements.txt
 python main.py --demo
 ```
 
-**Dependencies:** `requirements.txt` pins direct package versions. For a full transitive lock (optional), use `requirements-lock.txt`. Python **3.13** (see `.python-version`).
+**Dependencies:** `requirements.txt` pins core runtime (Streamlit Cloud–friendly). For notebooks/tests/plotly export, also install `requirements-dev.txt`. Python **3.13** (`.python-version`).
 
 | Command | Purpose |
 |---------|---------|
