@@ -24,7 +24,18 @@
 4. **滚动波动率揭示风险阶段** — 20 日滚动波动率在宏观事件、财报季或行业主题（如 AI）活跃期会出现尖峰；SLV 的尖峰则更多与贵金属价格及宏观预期相关。
 5. **长期收益轨迹差异** — 累计对数收益曲线直观展示各标的在样本期内的相对表现，NVDA 在 AI 周期中往往累计收益领先，但伴随更高波动。
 
-> 完整交互式报告见 [`notebooks/main.ipynb`](notebooks/main.ipynb)。图表由 `python main.py` 生成并保存至 `images/`。
+> 在线阅读报告（已预执行，含表格与图表输出）：
+> - **GitHub 渲染：** [notebooks/main.ipynb](https://github.com/bobooooo6868/financial-analysis-demo/blob/master/notebooks/main.ipynb)
+> - **nbviewer：** [打开 main.ipynb](https://nbviewer.org/github/bobooooo6868/financial-analysis-demo/blob/master/notebooks/main.ipynb)
+
+静态图表另存于 `images/`（由 `python main.py --demo` 生成）。
+
+## Notebook 说明
+
+| 文件 | 定位 |
+|------|------|
+| [`notebooks/main.ipynb`](notebooks/main.ipynb) | **正式报告**：四标的完整分析、统计检验、图表与文字结论（作业提交用） |
+| [`notebooks/01_stock_overview.ipynb`](notebooks/01_stock_overview.ipynb) | **草稿 / 练习**：单只股票 `yfinance` 入门示例，保留作学习参考 |
 
 ## 可视化结果
 
@@ -62,8 +73,8 @@ financial-analysis-demo/
 ├── tests/                # pytest 单元测试
 ├── LICENSE
 ├── notebooks/
-│   ├── main.ipynb        # 主分析报告（作业提交用）
-│   └── 01_stock_overview.ipynb
+│   ├── main.ipynb              # 正式分析报告（作业提交，含预执行输出）
+│   └── 01_stock_overview.ipynb # 草稿：单股 yfinance 入门练习
 ├── src/
 │   ├── data_fetch.py     # 数据采集与清洗
 │   ├── analysis.py       # 收益、滚动、相关性、重采样
@@ -129,6 +140,10 @@ python main.py --demo
 `--demo` 会加载仓库内置的 [`data/processed/prices_wide_demo.csv`](data/processed/prices_wide_demo.csv)（固定种子合成数据），无需联网即可复现分析流程。稍后再去掉 `--demo` 重新下载真实行情。
 
 **Jupyter Notebook（含 Markdown 结论）**
+
+在线预览：[GitHub](https://github.com/bobooooo6868/financial-analysis-demo/blob/master/notebooks/main.ipynb) · [nbviewer](https://nbviewer.org/github/bobooooo6868/financial-analysis-demo/blob/master/notebooks/main.ipynb)
+
+本地运行：
 
 ```bash
 jupyter lab notebooks/main.ipynb
