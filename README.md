@@ -23,7 +23,7 @@
 |-------|--------|
 | Data | [yfinance](https://github.com/ranaroussi/yfinance), Pandas, NumPy |
 | Analytics | SciPy (Jarque–Bera), statsmodels (ADF), vectorized NumPy stats |
-| Visualization | Matplotlib, Seaborn |
+| Visualization | Matplotlib, Seaborn, **Plotly** |
 | App & Report | Streamlit, Jupyter |
 | Quality | pytest, GitHub Actions |
 
@@ -36,6 +36,13 @@
 - **Statistics:** correlation matrix, rolling vol, monthly resample, normality & stationarity tests.
 - **Offline fallback:** bundled demo CSV + `--demo` flag when Yahoo rate-limits.
 - **CI:** every push runs `pytest` and `python main.py --demo`.
+- **Fiverr cover asset:** AAPL Plotly line chart exported from [`01_stock_overview.ipynb`](notebooks/01_stock_overview.ipynb) → `images/aapl_plotly_cover.png`.
+
+## Fiverr Gig Cover (AAPL · Plotly)
+
+Single-stock Apple close-price line chart (1Y), exported as PNG for marketplace thumbnails.
+
+![AAPL Plotly cover — Fiverr gig asset](images/aapl_plotly_cover.png)
 
 ## Screenshots
 
@@ -90,7 +97,7 @@ financial-analysis-demo/
 | File | Role |
 |------|------|
 | [`notebooks/main.ipynb`](notebooks/main.ipynb) | **Main report** — analysis, tests, conclusions |
-| [`notebooks/01_stock_overview.ipynb`](notebooks/01_stock_overview.ipynb) | Draft — single-stock `yfinance` intro |
+| [`notebooks/01_stock_overview.ipynb`](notebooks/01_stock_overview.ipynb) | AAPL intro + **Plotly cover PNG** export |
 
 View online: [GitHub](https://github.com/bobooooo6868/financial-analysis-demo/blob/master/notebooks/main.ipynb) · [nbviewer](https://nbviewer.org/github/bobooooo6868/financial-analysis-demo/blob/master/notebooks/main.ipynb)
 
