@@ -2,9 +2,15 @@
 
 from __future__ import annotations
 
+import io
+from collections.abc import Callable
+from pathlib import Path
+from typing import Any
+
 import matplotlib.pyplot as plt
 import numpy as np
 import streamlit as st
+from matplotlib.figure import Figure
 
 from src.analysis import run_full_analysis
 from src.config import TICKERS
@@ -36,11 +42,16 @@ def load_analysis(use_demo: bool) -> dict:
     return run_full_analysis(prices)
 
 
-def render_figure(plot_fn, results: dict, key: str) -> None:
-    """Render a matplotlib figure in Streamlit without writing to disk."""
-    plot_fn(results[key], save=False)
-    fig = plt.gcf()
-    st.pyplot(fig, clear_figure=True)
+def render_figure(plot_fn: Callable[..., Path | Figure], data: Any) -> None:
+    """Render matplotlib output via PNG bytes (reliable on Streamlit Cloud)."""
+    fig = plot_fn(data, save=False)
+    if not isinstance(fig, Figure):
+        return
+    buf = io.BytesIO()
+    fig.savefig(buf, format="png", dpi=120, bbox_inches="tight")
+    plt.close(fig)
+    buf.seek(0)
+    st.image(buf, use_container_width=True)
 
 
 def main() -> None:
@@ -128,18 +139,18 @@ def main() -> None:
 
     with tab_charts:
         st.subheader("累计对数收益")
-        render_figure(plot_cumulative_returns, results, "cumulative_log_return")
+        render_figure(plot_cumulative_returns, results["cumulative_log_return"])
 
         left, right = st.columns(2)
         with left:
             st.subheader("相关矩阵热图")
-            render_figure(plot_correlation_heatmap, results, "correlation")
+            render_figure(plot_correlation_heatmap, results["correlation"])
         with right:
             st.subheader("20 日滚动波动率")
-            render_figure(plot_rolling_volatility, results, "rolling_volatility")
+            render_figure(plot_rolling_volatility, results["rolling_volatility"])
 
         st.subheader("最近 12 个月月均日收益")
-        render_figure(plot_monthly_returns_bar, results, "monthly_groupby")
+        render_figure(plot_monthly_returns_bar, results["monthly_groupby"])
 
     with st.expander("标的说明"):
         for symbol in TICKERS:

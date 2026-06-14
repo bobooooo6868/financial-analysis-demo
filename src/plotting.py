@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
+from matplotlib.figure import Figure
 
 from src.config import IMAGES_DIR, TICKERS
 
@@ -17,7 +18,7 @@ def _ensure_images_dir() -> Path:
     return IMAGES_DIR
 
 
-def plot_cumulative_returns(cum_log: pd.DataFrame, save: bool = True) -> Path | None:
+def plot_cumulative_returns(cum_log: pd.DataFrame, save: bool = True) -> Path | Figure:
     fig, ax = plt.subplots(figsize=(11, 5))
     for col in cum_log.columns:
         cum_log[col].plot(ax=ax, label=col)
@@ -31,10 +32,10 @@ def plot_cumulative_returns(cum_log: pd.DataFrame, save: bool = True) -> Path | 
         fig.savefig(path, dpi=150)
         plt.close(fig)
         return path
-    return None
+    return fig
 
 
-def plot_correlation_heatmap(corr: pd.DataFrame, save: bool = True) -> Path | None:
+def plot_correlation_heatmap(corr: pd.DataFrame, save: bool = True) -> Path | Figure:
     fig, ax = plt.subplots(figsize=(6, 5))
     sns.heatmap(corr, annot=True, fmt=".2f", cmap="RdYlGn", center=0, ax=ax, vmin=-1, vmax=1)
     ax.set_title("Daily Return Correlation Matrix")
@@ -44,10 +45,10 @@ def plot_correlation_heatmap(corr: pd.DataFrame, save: bool = True) -> Path | No
         fig.savefig(path, dpi=150)
         plt.close(fig)
         return path
-    return None
+    return fig
 
 
-def plot_rolling_volatility(roll_vol: pd.DataFrame, save: bool = True) -> Path | None:
+def plot_rolling_volatility(roll_vol: pd.DataFrame, save: bool = True) -> Path | Figure:
     fig, ax = plt.subplots(figsize=(11, 5))
     for col in roll_vol.columns:
         roll_vol[col].plot(ax=ax, label=col, alpha=0.8)
@@ -61,10 +62,10 @@ def plot_rolling_volatility(roll_vol: pd.DataFrame, save: bool = True) -> Path |
         fig.savefig(path, dpi=150)
         plt.close(fig)
         return path
-    return None
+    return fig
 
 
-def plot_monthly_returns_bar(monthly: pd.DataFrame, save: bool = True) -> Path | None:
+def plot_monthly_returns_bar(monthly: pd.DataFrame, save: bool = True) -> Path | Figure:
     """Bar chart of last 12 months average return for each ticker."""
     tail = monthly.tail(12)
     x = np.arange(len(tail))
@@ -85,7 +86,7 @@ def plot_monthly_returns_bar(monthly: pd.DataFrame, save: bool = True) -> Path |
         fig.savefig(path, dpi=150)
         plt.close(fig)
         return path
-    return None
+    return fig
 
 
 def generate_all_figures(results: dict) -> list[Path]:
