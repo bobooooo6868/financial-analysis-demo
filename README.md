@@ -62,14 +62,39 @@ Single-stock Apple close-price line chart (1Y), exported as PNG for marketplace 
 
 ![Monthly returns](images/monthly_returns_bar.png)
 
-## Quick Start
+## Quick Start (2 commands)
+
+**Fastest path after clone** — offline demo, no yfinance required:
 
 ```bash
 git clone https://github.com/bobooooo6868/financial-analysis-demo.git
 cd financial-analysis-demo
-python -m venv .venv && source .venv/bin/activate   # Windows: .\.venv\Scripts\Activate.ps1
-pip install -r requirements.txt
 ```
+
+**Windows (PowerShell)**
+
+```powershell
+.\setup.ps1 -RunDemo
+```
+
+**macOS / Linux**
+
+```bash
+chmod +x setup.sh
+./setup.sh --demo
+```
+
+Or with Make: `make demo` (creates `.venv`, installs deps, runs `main.py --demo`).
+
+### Manual setup
+
+```bash
+python3 -m venv .venv && source .venv/bin/activate   # Windows: py -3.13 -m venv .venv; .\.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+python main.py --demo
+```
+
+**Dependencies:** `requirements.txt` pins direct package versions. For a full transitive lock (optional), use `requirements-lock.txt`. Python **3.13** (see `.python-version`).
 
 | Command | Purpose |
 |---------|---------|
@@ -83,6 +108,10 @@ pip install -r requirements.txt
 
 ```
 financial-analysis-demo/
+├── setup.ps1 / setup.sh   # One-command environment setup
+├── Makefile               # make setup | demo | test
+├── requirements.txt       # Pinned direct dependencies
+├── requirements-lock.txt  # Optional full pip freeze lock
 ├── app.py                 # Streamlit dashboard
 ├── fetch_data.py          # Single-ticker live fetch + returns
 ├── main.py                # CLI pipeline
