@@ -2,222 +2,103 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![CI](https://github.com/bobooooo6868/financial-analysis-demo/actions/workflows/ci.yml/badge.svg)](https://github.com/bobooooo6868/financial-analysis-demo/actions/workflows/ci.yml)
+[![Live Demo](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://financial-analysis-demo.streamlit.app)
 
-基于 **Python / Pandas / NumPy** 对四只标的近两年日线收盘价进行采集、清洗与量化分析。
+**Problem:** Retail and tech investors need a fast way to compare risk, correlation, and return patterns across multiple tickers—without manual spreadsheets or fragmented Yahoo Finance exports.
 
-**仓库地址：** [github.com/bobooooo6868/financial-analysis-demo](https://github.com/bobooooo6868/financial-analysis-demo)
+**Solution:** A modular Python pipeline that pulls live prices via `yfinance`, cleans and merges multi-ticker data, runs vectorized analytics (returns, rolling volatility, correlation, normality & ADF tests), and ships results through CLI, Jupyter, pytest, CI, and a Streamlit dashboard.
 
-| 代码 | 说明 |
-|------|------|
-| GOOGL | 谷歌 |
-| AVGO | 博通 |
-| SLV | iShares 白银 ETF |
-| NVDA | 英伟达 |
+**Result:** A reproducible end-to-end stock analytics project with automated tests, one-click charts, an interactive live demo, and a portfolio-ready GitHub repo—demonstrating data engineering, statistics, and deployment in one place.
 
-## 分析结论
+| | |
+|---|---|
+| **Live Demo** | [Streamlit App](https://financial-analysis-demo.streamlit.app) · [Report (Notebook)](https://nbviewer.org/github/bobooooo6868/financial-analysis-demo/blob/master/notebooks/main.ipynb) |
+| **Repository** | [github.com/bobooooo6868/financial-analysis-demo](https://github.com/bobooooo6868/financial-analysis-demo) |
 
-基于近两年日收益数据的统计与可视化，主要发现如下：
+> If your Streamlit URL differs, update the badge link above from **Manage app** on [share.streamlit.io](https://share.streamlit.io/).
 
-1. **波动率分化明显** — 科技股中 NVDA、AVGO 的日收益标准差通常高于 GOOGL；SLV 作为商品 ETF，波动特征与科技股不同，需结合 `std` 列对照各标的的风险水平。
-2. **科技股联动性强** — GOOGL、AVGO、NVDA 三只科技股日收益相关系数普遍为正且较高，反映同一板块内的共同市场驱动因素。
-3. **SLV 与科技股低相关** — SLV 与三只科技股的平均相关系数明显更低，体现股票与大宗商品在驱动逻辑上的差异，具有一定分散化价值。
-4. **滚动波动率揭示风险阶段** — 20 日滚动波动率在宏观事件、财报季或行业主题（如 AI）活跃期会出现尖峰；SLV 的尖峰则更多与贵金属价格及宏观预期相关。
-5. **长期收益轨迹差异** — 累计对数收益曲线直观展示各标的在样本期内的相对表现，NVDA 在 AI 周期中往往累计收益领先，但伴随更高波动。
+## Tech Stack
 
-> 在线阅读报告（已预执行，含表格与图表输出）：
-> - **GitHub 渲染：** [notebooks/main.ipynb](https://github.com/bobooooo6868/financial-analysis-demo/blob/master/notebooks/main.ipynb)
-> - **nbviewer：** [打开 main.ipynb](https://nbviewer.org/github/bobooooo6868/financial-analysis-demo/blob/master/notebooks/main.ipynb)
+| Layer | Tools |
+|-------|--------|
+| Data | [yfinance](https://github.com/ranaroussi/yfinance), Pandas, NumPy |
+| Analytics | SciPy (Jarque–Bera), statsmodels (ADF), vectorized NumPy stats |
+| Visualization | Matplotlib, Seaborn |
+| App & Report | Streamlit, Jupyter |
+| Quality | pytest, GitHub Actions |
 
-静态图表另存于 `images/`（由 `python main.py --demo` 生成）。
+**Tickers:** GOOGL · AVGO · SLV (silver ETF) · NVDA — ~2 years of daily closes.
 
-## Notebook 说明
+## Highlights
 
-| 文件 | 定位 |
-|------|------|
-| [`notebooks/main.ipynb`](notebooks/main.ipynb) | **正式报告**：四标的完整分析、统计检验、图表与文字结论（作业提交用） |
-| [`notebooks/01_stock_overview.ipynb`](notebooks/01_stock_overview.ipynb) | **草稿 / 练习**：单只股票 `yfinance` 入门示例，保留作学习参考 |
+- **Live fetch:** `fetch_data.py` pulls a single ticker and prints daily & period returns.
+- **Batch pipeline:** `main.py` / `src/data_fetch.py` build a merged wide price table for four symbols.
+- **Statistics:** correlation matrix, rolling vol, monthly resample, normality & stationarity tests.
+- **Offline fallback:** bundled demo CSV + `--demo` flag when Yahoo rate-limits.
+- **CI:** every push runs `pytest` and `python main.py --demo`.
 
-## 可视化结果
+## Screenshots
 
-### 累计对数收益
+### Cumulative log returns
 
-展示各标的从样本起始日至当前的累计对数收益轨迹，便于比较长期收益趋势。
+![Cumulative log returns](images/cumulative_log_returns.png)
 
-![累计对数收益曲线](images/cumulative_log_returns.png)
+### Return correlation
 
-### 日收益相关矩阵
+![Correlation heatmap](images/correlation_heatmap.png)
 
-颜色越绿表示正相关越强，越红表示负相关越强。用于判断科技股之间的联动程度及 SLV 与科技股的差异。
+### 20-day rolling volatility
 
-![日收益相关矩阵热图](images/correlation_heatmap.png)
+![Rolling volatility](images/rolling_volatility.png)
 
-### 20 日滚动波动率
+### Monthly mean daily returns (last 12 months)
 
-反映短期风险水平随时间的变化，尖峰通常对应市场剧烈波动或重大事件阶段。
+![Monthly returns](images/monthly_returns_bar.png)
 
-![20 日滚动波动率](images/rolling_volatility.png)
-
-### 最近 12 个月月均日收益
-
-按月比较各标的平均日收益，便于观察阶段性相对强弱。
-
-![最近 12 个月月均日收益](images/monthly_returns_bar.png)
-
-## 项目结构
-
-```
-financial-analysis-demo/
-├── data/
-│   ├── raw/              # 各标的原始 CSV（运行后生成）
-│   └── processed/        # 清洗后的宽表；含 prices_wide_demo.csv（离线演示）
-├── tests/                # pytest 单元测试
-├── LICENSE
-├── notebooks/
-│   ├── main.ipynb              # 正式分析报告（作业提交，含预执行输出）
-│   └── 01_stock_overview.ipynb # 草稿：单股 yfinance 入门练习
-├── src/
-│   ├── data_fetch.py     # 数据采集与清洗
-│   ├── analysis.py       # 收益、滚动、相关性、重采样
-│   ├── utils.py          # NumPy 统计工具函数
-│   ├── plotting.py       # 图表生成
-│   ├── demo_data.py      # 合成演示数据（限流备用）
-│   └── config.py         # 常量配置
-├── images/               # 导出的图表 PNG
-├── fetch_data.py         # 单只股票 yfinance 实时拉取 + 涨跌幅
-├── main.py               # 一键运行全流程
-├── requirements.txt
-└── README.md
-```
-
-## 快速开始
-
-### 1. 克隆仓库
+## Quick Start
 
 ```bash
 git clone https://github.com/bobooooo6868/financial-analysis-demo.git
 cd financial-analysis-demo
-```
-
-### 2. 创建虚拟环境并安装依赖
-
-**Windows (PowerShell)**
-
-```powershell
-py -3.13 -m venv .venv
-.\.venv\Scripts\Activate.ps1
+python -m venv .venv && source .venv/bin/activate   # Windows: .\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
-python -m ipykernel install --user --name financial-analysis --display-name "Python (financial-analysis)"
 ```
 
-**macOS / Linux**
+| Command | Purpose |
+|---------|---------|
+| `python fetch_data.py GOOGL` | Live single-ticker quote + % change |
+| `python main.py` | Full pipeline (live data) + charts |
+| `python main.py --demo` | Offline demo data (CI / rate limits) |
+| `streamlit run app.py` | Interactive dashboard |
+| `pytest tests/` | Run unit tests |
 
-```bash
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-python -m ipykernel install --user --name financial-analysis --display-name "Python (financial-analysis)"
+## Project Layout
+
+```
+financial-analysis-demo/
+├── app.py                 # Streamlit dashboard
+├── fetch_data.py          # Single-ticker live fetch + returns
+├── main.py                # CLI pipeline
+├── src/                   # data_fetch, analysis, plotting, utils
+├── notebooks/main.ipynb   # Full report (pre-executed)
+├── tests/                 # pytest
+└── images/                # Exported charts
 ```
 
-国内用户可在 pip 命令后追加镜像参数，例如：
+## Report & Notebooks
 
-```bash
-pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple --trusted-host pypi.tuna.tsinghua.edu.cn
-```
+| File | Role |
+|------|------|
+| [`notebooks/main.ipynb`](notebooks/main.ipynb) | **Main report** — analysis, tests, conclusions |
+| [`notebooks/01_stock_overview.ipynb`](notebooks/01_stock_overview.ipynb) | Draft — single-stock `yfinance` intro |
 
-### 3. 运行分析
+View online: [GitHub](https://github.com/bobooooo6868/financial-analysis-demo/blob/master/notebooks/main.ipynb) · [nbviewer](https://nbviewer.org/github/bobooooo6868/financial-analysis-demo/blob/master/notebooks/main.ipynb)
 
-**命令行一键运行（下载数据 + 分析 + 出图）**
+## Data Notes
 
-```bash
-python main.py
-```
+- Market data via yfinance (delayed; for education/research only).
+- Default paths use **live** data (`main.ipynb`, Streamlit); use `--demo` or the Streamlit toggle when offline or rate-limited.
 
-若 **yfinance 限流**（`Too Many Requests`），可先用演示数据跑通流程：
+## License
 
-```bash
-python main.py --demo
-```
-
-`--demo` 会加载仓库内置的 [`data/processed/prices_wide_demo.csv`](data/processed/prices_wide_demo.csv)（固定种子合成数据），无需联网即可复现分析流程。稍后再去掉 `--demo` 重新下载真实行情。
-
-**Jupyter Notebook（含 Markdown 结论）**
-
-在线预览：[GitHub](https://github.com/bobooooo6868/financial-analysis-demo/blob/master/notebooks/main.ipynb) · [nbviewer](https://nbviewer.org/github/bobooooo6868/financial-analysis-demo/blob/master/notebooks/main.ipynb)
-
-本地运行：
-
-```bash
-jupyter lab notebooks/main.ipynb
-# 或在 VS Code 中打开 notebooks/main.ipynb
-```
-
-选择内核 **Python (financial-analysis)**，从上到下运行所有单元格。
-
-**仅重新下载数据**
-
-```bash
-python -m src.data_fetch
-```
-
-**单只股票实时拉取 + 涨跌幅（t3 / live 数据）**
-
-```bash
-python fetch_data.py GOOGL
-python fetch_data.py NVDA --period 1y
-```
-
-默认使用 yfinance 实时行情，打印最新收盘价、日涨跌幅与区间涨跌幅（无 demo 回退）。
-
-### 4. 运行测试
-
-```bash
-pytest tests/
-```
-
-详细输出可加 `-v`：`pytest tests/ -v`
-
-## GitHub Actions 自动检查
-
-[`.github/workflows/ci.yml`](.github/workflows/ci.yml) 在每次 **push / PR** 到 `master` 或 `main` 时自动运行，无需联网：
-
-1. 安装依赖（`pip install -r requirements.txt`）
-2. 运行 `python main.py --demo`（内置演示数据 + 出图）
-3. 运行 `pytest tests/`
-
-[![CI](https://github.com/bobooooo6868/financial-analysis-demo/actions/workflows/ci.yml/badge.svg)](https://github.com/bobooooo6868/financial-analysis-demo/actions/workflows/ci.yml)
-
-即使作为课程作业项目，也能体现代码可自动验证、可复现。
-
-## 作业对应关系
-
-| 步骤 | 内容 | 主要代码 |
-|------|------|----------|
-| 1 | 单股 live 采集、涨跌幅 | `fetch_data.py` |
-| 1b | 四标的采集、清洗、`merge` 宽表 | `src/data_fetch.py` |
-| 2 | 收益率、NumPy 向量化统计、正态性/平稳性检验 | `src/analysis.py`, `src/utils.py` |
-| 3 | 滚动均线/波动率、`corr`、`groupby`、`resample` | `src/analysis.py` |
-| 4 | Notebook 报告 + 图表 + GitHub | `notebooks/main.ipynb`, `images/` |
-
-## 技术栈
-
-`yfinance` · `pandas` · `numpy` · `matplotlib` · `seaborn` · `scipy` · `statsmodels` · `jupyter`
-
-完整依赖见 [`requirements.txt`](requirements.txt)。
-
-## 数据来源与说明
-
-- 行情数据通过 [yfinance](https://github.com/ranaroussi/yfinance) 获取，存在延迟，仅供学习与研究使用。
-- 原始 CSV 默认不纳入版本控制，运行后本地生成；图表 PNG 提交至仓库便于 GitHub 展示。
-- 正式分析默认使用 **yfinance 实时数据**（`main.ipynb`、`app.py`）；限流或离线时用 `--demo` / 演示开关。
-
-## 许可证
-
-本项目采用 [MIT License](LICENSE)。
-
-## 更新仓库
-
-```bash
-git add .
-git commit -m "描述你的修改"
-git push origin master
-```
+[MIT License](LICENSE)
