@@ -94,7 +94,7 @@ pip install -r requirements.txt
 python main.py --demo
 ```
 
-**Dependencies:** `requirements.txt` pins core runtime (Python **3.12**, Streamlit Cloud–compatible). For notebooks/tests/plotly export, install `requirements-dev.txt`. See `.python-version`.
+**Dependencies:** `requirements.txt` (flexible, Cloud/uv-friendly). Local dev also install `requirements-dev.txt`. Python **3.12+** (`.python-version`); if Cloud uses 3.14, deps allow `matplotlib>=3.10`.
 
 | Command | Purpose |
 |---------|---------|

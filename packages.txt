@@ -1,2 +1,0 @@
-# System packages for matplotlib on Streamlit Community Cloud (Debian/Ubuntu).
-libgl1
